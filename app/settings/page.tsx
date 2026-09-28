@@ -1,0 +1,2 @@
+export default function Settings(){return <div className="shell"><Header/><main className="page"><span className="badge">Configuration</span><h1>Settings</h1><div className="panel">Settings will control appearance, workspace preferences, AI configuration, and account options.</div></main></div>}
+function Header(){return <header className="nav"><a className="brand" href="/">Doodle Lab</a><nav className="links"><a href="/">Home</a><a href="/projects">Projects</a><a href="/modes">Modes</a><a href="/settings">Settings</a></nav></header>}
