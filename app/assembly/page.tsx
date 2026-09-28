@@ -78,6 +78,7 @@ function ItemCard({ item }: { item: Item }) {
 
 export default function Assembly() {
   const [items, setItems] = useState<Item[]>([]);
+  const [saved, setSaved] = useState("");
 
   useEffect(() => {
     setItems(readItems());
@@ -86,6 +87,29 @@ export default function Assembly() {
   function clearAssembly() {
     localStorage.removeItem("doodle-files");
     setItems([]);
+    setSaved("");
+  }
+
+  function saveAssembly() {
+    if (!items.length) return;
+
+    const files = readItems();
+    const assembly = {
+      id: Date.now().toString(),
+      mode: "Assembly",
+      title: "Assembly",
+      data: JSON.stringify(
+        items.map(({ id, mode, title, data }) => ({ id, mode, title, data })),
+      ),
+    };
+
+    localStorage.setItem(
+      "doodle-files",
+      JSON.stringify([assembly, ...files].slice(0, 50)),
+    );
+    setItems(readItems());
+    setSaved("Saved ✓");
+    setTimeout(() => setSaved(""), 1400);
   }
 
   const hasItems = items.length > 0;
@@ -116,6 +140,7 @@ export default function Assembly() {
                   justifyContent: "space-between",
                   alignItems: "center",
                   gap: 16,
+                  flexWrap: "wrap",
                 }}
               >
                 <div>
@@ -126,7 +151,12 @@ export default function Assembly() {
                   </p>
                 </div>
 
-                <button onClick={clearAssembly}>Clear assembly</button>
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                  <button onClick={saveAssembly}>
+                    📁 {saved || "Save to File"}
+                  </button>
+                  <button onClick={clearAssembly}>Clear assembly</button>
+                </div>
               </div>
 
               <div className="grid" style={{ marginTop: 20 }}>
