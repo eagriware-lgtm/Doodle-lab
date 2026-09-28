@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-type Tool = "horizontal" | "vertical" | "rectangle" | "circle" | "arrow" | "pen";
+type Tool = "horizontal" | "vertical" | "rectangle" | "circle" | "arrow" | "pen" | "eraser";
 
 export default function Sketch() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -32,9 +32,9 @@ export default function Sketch() {
   };
 
   const style = (ctx: CanvasRenderingContext2D) => {
-    ctx.strokeStyle = color;
+    ctx.strokeStyle = tool === "eraser" ? "#fffdf9" : color;
     ctx.fillStyle = color;
-    ctx.lineWidth = size;
+    ctx.lineWidth = tool === "eraser" ? Math.max(size * 3, 14) : size;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
   };
@@ -74,16 +74,17 @@ export default function Sketch() {
     start.current = p;
     drawing.current = true;
 
-    if (tool !== "pen") {
-      const ctx = canvasRef.current!.getContext("2d")!;
-      style(ctx);
+    const ctx = canvasRef.current!.getContext("2d")!;
+    style(ctx);
+
+    if (tool !== "pen" && tool !== "eraser") {
       drawShape(ctx, p.x, p.y);
       drawing.current = false;
     }
   };
 
   const pointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    if (!drawing.current || tool !== "pen") return;
+    if (!drawing.current || (tool !== "pen" && tool !== "eraser")) return;
     const p = position(e);
     const ctx = canvasRef.current!.getContext("2d")!;
     style(ctx);
@@ -102,7 +103,7 @@ export default function Sketch() {
     if (!note.trim()) return;
     const ctx = canvasRef.current?.getContext("2d");
     if (!ctx) return;
-    style(ctx);
+    ctx.fillStyle = color;
     ctx.font = "700 28px sans-serif";
     ctx.fillText(note.trim(), 70, 90);
     setNote("");
@@ -123,6 +124,7 @@ export default function Sketch() {
     ["circle", "○ Circle"],
     ["arrow", "↗ Arrow"],
     ["pen", "✎ Free draw"],
+    ["eraser", "⌫ Eraser"],
   ];
 
   return (
@@ -145,9 +147,10 @@ export default function Sketch() {
           ))}
           <input value={note} onChange={(e) => setNote(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addNote()} placeholder="Add a note" />
           <button onClick={addNote}>T Text</button>
-          <label className="sketchColor">🎨 <input aria-label="Sketch color" type="color" value={color} onChange={(e) => setColor(e.target.value)} /></label>
+          <label className="sketchColor">🎨 Color <input aria-label="Sketch color" type="color" value={color} onChange={(e) => setColor(e.target.value)} /></label>
           <label className="sketchSize">Size <input type="range" min="1" max="16" value={size} onChange={(e) => setSize(Number(e.target.value))} /></label>
           <button onClick={clearCanvas}>Clear</button>
+          <a className="convert3dButton" href="/cad">⌁ Convert to 3D</a>
         </div>
 
         <div className="sketchCanvas">
