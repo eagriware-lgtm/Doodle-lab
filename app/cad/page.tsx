@@ -1,0 +1,2 @@
+export default function Page(){return <div className="shell"><Header/><main className="page"><span className="badge">📐 Doodle Lab</span><h1>CAD Mode</h1><div className="panel">Your CAD workspace starts here.<br/><br/>This is the foundation page. The full workspace will be built in the next updates.</div></main></div>}
+function Header(){return <header className="nav"><a className="brand" href="/">Doodle Lab</a><nav className="links"><a href="/">Home</a><a href="/projects">Projects</a><a href="/modes">Modes</a><a href="/settings">Settings</a></nav></header>}
