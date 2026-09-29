@@ -155,7 +155,6 @@ export default function Assembly() {
                   <button onClick={saveAssembly}>
                     📁 {saved || "Save to File"}
                   </button>
-
               <div className="grid" style={{ marginTop: 20 }}>
                 {items.map((item) => (
                   <ItemCard key={item.id} item={item} />
