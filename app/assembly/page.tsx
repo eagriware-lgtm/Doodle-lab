@@ -9,7 +9,7 @@ type Item = {
   data: string;
 };
 
-function readItems(): Item[] {
+function readAll(): Item[] {
   try {
     const saved = localStorage.getItem("doodle-files");
     if (!saved) return [];
@@ -20,26 +20,24 @@ function readItems(): Item[] {
   }
 }
 
+function readPieces(): Item[] {
+  return readAll().filter((item) => item.mode !== "Assembly");
+}
+
 function Header() {
   return (
     <header className="nav">
       <a className="brand" href="/">
         <span className="brandMark">✦</span>
-        <span>
-          Doodle <i>Lab</i>
-        </span>
+        <span>Doodle <i>Lab</i></span>
       </a>
-
       <nav className="links">
         <a href="/">Home</a>
         <a href="/projects">Projects</a>
         <a href="/modes">Modes</a>
         <a href="/settings">Settings</a>
       </nav>
-
-      <a className="navCta" href="/assembly">
-        Assembly
-      </a>
+      <a className="navCta" href="/assembly">Assembly</a>
     </header>
   );
 }
@@ -52,7 +50,6 @@ function ItemCard({ item }: { item: Item }) {
       <div className="icon">✦</div>
       <h2>{item.title}</h2>
       <p>{item.mode}</p>
-
       {isImage ? (
         <img
           src={item.data}
@@ -67,9 +64,7 @@ function ItemCard({ item }: { item: Item }) {
         />
       ) : (
         <small>
-          {item.data.length > 140
-            ? `${item.data.slice(0, 140)}…`
-            : item.data}
+          {item.data.length > 140 ? `${item.data.slice(0, 140)}…` : item.data}
         </small>
       )}
     </div>
@@ -80,34 +75,35 @@ export default function Assembly() {
   const [items, setItems] = useState<Item[]>([]);
   const [saved, setSaved] = useState("");
 
+  const refresh = () => setItems(readPieces());
+
   useEffect(() => {
-    setItems(readItems());
+    refresh();
   }, []);
 
   function clearAssembly() {
-    localStorage.removeItem("doodle-files");
-    setItems([]);
+    const remaining = readAll().filter((item) => item.mode !== "Assembly");
+    localStorage.setItem("doodle-files", JSON.stringify(remaining));
+    refresh();
     setSaved("");
   }
 
   function saveAssembly() {
     if (!items.length) return;
 
-    const files = readItems();
-    const assembly = {
+    const all = readAll().filter((item) => item.mode !== "Assembly");
+    const assembly: Item = {
       id: Date.now().toString(),
       mode: "Assembly",
-      title: "Assembly",
-      data: JSON.stringify(
-        items.map(({ id, mode, title, data }) => ({ id, mode, title, data })),
-      ),
+      title: "Assembly Snapshot",
+      data: JSON.stringify(items),
     };
 
     localStorage.setItem(
       "doodle-files",
-      JSON.stringify([assembly, ...files].slice(0, 50)),
+      JSON.stringify([assembly, ...all].slice(0, 50)),
     );
-    setItems(readItems());
+
     setSaved("Saved ✓");
     setTimeout(() => setSaved(""), 1400);
   }
@@ -117,7 +113,6 @@ export default function Assembly() {
   return (
     <div className="shell">
       <Header />
-
       <main className="page">
         <span className="badge">🧩 Assembly</span>
         <h1>Put everything together.</h1>
@@ -153,9 +148,11 @@ export default function Assembly() {
 
                 <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                   <button onClick={saveAssembly}>
-                    📁 {saved || "Save to File"}
+                    📁 {saved || "Save Assembly"}
                   </button>
-                  <button type="button" onClick={clearAssembly}>Clear assembly</button>
+                  <button type="button" onClick={clearAssembly}>
+                    Clear assembly
+                  </button>
                 </div>
               </div>
 
