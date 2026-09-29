@@ -155,7 +155,7 @@ export default function Assembly() {
                   <button onClick={saveAssembly}>
                     📁 {saved || "Save to File"}
                   </button>
-                  <button type="button" onClick={clearAssembly}>Clear assembly</button>
+                  <button onClick={clearAssembly}>Clear assembly</button>
                 </div>
               </div>
 
